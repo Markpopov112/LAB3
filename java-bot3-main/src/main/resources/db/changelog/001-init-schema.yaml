@@ -1,0 +1,187 @@
+databaseChangeLog:
+  - changeSet:
+      id: "001-create-table-jokes"
+      author: "Trev"
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: "jokes"
+      changes:
+        - createTable:
+            tableName: "jokes"
+            columns:
+              - column:
+                  name: "id"
+                  type: "BIGINT"
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "text"
+                  type: "TEXT"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "created_at"
+                  type: "TIMESTAMP"
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: "CURRENT_TIMESTAMP"
+              - column:
+                  name: "updated_at"
+                  type: "TIMESTAMP"
+                  defaultValueComputed: "CURRENT_TIMESTAMP"
+
+  - changeSet:
+      id: "002-create-table-joke_call"
+      author: "Trev"
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: "joke_call"
+      changes:
+        - createTable:
+            tableName: "joke_call"
+            columns:
+              - column:
+                  name: "id"
+                  type: "BIGINT"
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "call_time"
+                  type: "TIMESTAMP"
+                  constraints:
+                    nullable: false
+                  defaultValueComputed: "CURRENT_TIMESTAMP"
+              - column:
+                  name: "user_id"
+                  type: "BIGINT"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "joke_id"
+                  type: "BIGINT"
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            constraintName: "fk_joke_call_joke_id"
+            baseTableName: "joke_call"
+            baseColumnNames: "joke_id"
+            referencedTableName: "jokes"
+            referencedColumnNames: "id"
+
+  - changeSet:
+      id: "003-create-table-users"
+      author: "Trev"
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: "users"
+      changes:
+        - createTable:
+            tableName: "users"
+            columns:
+              - column:
+                  name: "id"
+                  type: "BIGINT"
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "username"
+                  type: "VARCHAR(50)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "password"
+                  type: "VARCHAR(100)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "expired"
+                  type: "BOOLEAN"
+                  defaultValue: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "locked"
+                  type: "BOOLEAN"
+                  defaultValue: false
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "enabled"
+                  type: "BOOLEAN"
+                  defaultValue: true
+                  constraints:
+                    nullable: false
+
+  - changeSet:
+      id: "004-create-table-user_roles"
+      author: "Trev"
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          tableExists:
+            tableName: "user_roles"
+      changes:
+        - createTable:
+            tableName: "user_roles"
+            columns:
+              - column:
+                  name: "id"
+                  type: "BIGINT"
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: "role"
+                  type: "VARCHAR(50)"
+                  constraints:
+                    nullable: false
+              - column:
+                  name: "user_id"
+                  type: "BIGINT"
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            constraintName: "fk_user_roles_user_id"
+            baseTableName: "user_roles"
+            baseColumnNames: "user_id"
+            referencedTableName: "users"
+            referencedColumnNames: "id"
+
+  - changeSet:
+      id: "005-add-joke-id-to-joke-call"
+      author: "Trev"
+      preConditions:
+        onFail: MARK_RAN
+        not:
+          columnExists:
+            tableName: "joke_call"
+            columnName: "joke_id"
+      changes:
+        - addColumn:
+            tableName: "joke_call"
+            columns:
+              - column:
+                  name: "joke_id"
+                  type: "BIGINT"
+                  constraints:
+                    nullable: false
+        - addForeignKeyConstraint:
+            constraintName: "fk_joke_call_joke_id"
+            baseTableName: "joke_call"
+            baseColumnNames: "joke_id"
+            referencedTableName: "jokes"
+            referencedColumnNames: "id"
+            onDelete: "CASCADE"
